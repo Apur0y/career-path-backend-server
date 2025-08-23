@@ -1,0 +1,497 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     String                  @id @default(auto()) @map("_id") @db.ObjectId
+  firstName              String
+  lastName               String
+  fullName               String?                 @default("")
+  email                  String                  @unique
+  password               String
+  profilePic             String?                 @default("")
+  phone                  String?                 @default("")
+  preferredContactMethod PreferredContactMethod? @default(email)
+  passwordChangedAt      DateTime?
+  roleChangedAt          DateTime?
+  isVerified             Boolean                 @default(false)
+  isResetPassword        Boolean                 @default(false)
+  canResetPassword       Boolean                 @default(false)
+  isResentOtp            Boolean                 @default(false)
+  role                   UserRole                @default(JOB_SEEKER)
+  isSubscribed           Boolean                 @default(false)
+  companyName            String?                 @default("")
+  joiningDate            DateTime?
+  planExpiration         DateTime?
+  address                String?
+  city                   String?
+  zipCode                String?
+  status                 UserStatus?             @default(ACTIVE)
+  subscriptionType       SubscriptionType?
+  planId                 String?                 @db.ObjectId
+  plan                   Plan?                   @relation(fields: [planId], references: [id])
+  totalPayPerJobCount    Int                     @default(0)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  Subscription           Subscription[]
+  Company                Company?
+  JobPost                JobPost[]
+  LoginRecord            LoginRecord[]
+  JobApplication         JobApplication[]
+  Profile                Profile[]
+  SavedJob               SavedJob[]
+  sentMessages           Chat[]                  @relation("SentMessages")
+  createdRooms           ChatRoom[]              @relation("CreatedRooms")
+  roomParticipations     ChatRoomParticipant[]
+  BillingInfo            BillingInfo[]
+
+  @@map("users")
+}
+
+model LoginRecord {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  loginTime DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+
+  @@index([userId])
+  @@index([loginTime])
+  @@map("login_records")
+}
+
+enum PreferredContactMethod {
+  email
+  phone
+}
+
+enum SubscriptionType {
+  payPerJob
+  monthly
+}
+
+model Subscription {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String        @db.ObjectId
+  planId          String        @db.ObjectId
+  startDate       DateTime
+  endDate         DateTime?
+  amount          Float
+  stripePaymentId String        @unique
+  paymentStatus   PaymentStatus @default(COMPLETED)
+  user            User?         @relation(fields: [userId], references: [id])
+  plan            Plan?         @relation(fields: [planId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("subscriptions")
+}
+
+model Plan {
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  planName         String
+  amount           Float
+  currency         String?        @default("eur")
+  interval         Interval?
+  intervalCount    Int?
+  productId        String
+  priceId          String
+  active           Boolean?       @default(true)
+  description      String?
+  features         Json?
+  planType         PlanType?      @default(subscription)
+  totalSubscribers Int?           @default(0)
+  Subscription     Subscription[]
+  User             User[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@map("plans")
+}
+
+model Company {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  companyName   String
+  industryType  String
+  roleInCompany String
+  description   String?
+  logo          String?   @default("")
+  country       String
+  email         String    @unique
+  phoneNumber   String
+  address       String
+  city          String
+  state         String
+  zipCode       String
+  website       String
+  userId        String    @unique @db.ObjectId
+  user          User?     @relation(fields: [userId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  JobPost       JobPost[]
+
+  @@map("companies")
+}
+
+model JobPost {
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  jobId          String           @unique
+  title          String
+  thumbnail      String?
+  experience     String
+  deadline       DateTime?
+  location       String
+  salaryType     SalaryType       @default(monthly)
+  salaryRange    String?
+  skills         String[]
+  features       Json
+  userId         String           @db.ObjectId
+  user           User?            @relation(fields: [userId], references: [id])
+  companyId      String           @db.ObjectId
+  company        Company?         @relation(fields: [companyId], references: [id])
+  jobType        JobType?         @default(onsite)
+  status         JobPostStatus    @default(ACTIVE)
+  noOfApplicants Int?             @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  JobApplication JobApplication[]
+  ChatRoom       ChatRoom[]
+  SavedJob       SavedJob[]
+
+  @@map("job_posts")
+}
+
+model BillingInfo {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String   @db.ObjectId
+  user           User     @relation(fields: [userId], references: [id])
+  firstName      String
+  lastName       String
+  phone          String
+  email          String
+  country        String
+  address        String
+  city           String
+  state          String
+  zipCode        String
+  additionalInfo String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("billing_infos")
+}
+
+enum JobType {
+  onsite
+  remote
+  hybrid
+}
+
+enum JobPostStatus {
+  ACTIVE
+  EXPIRED
+  DELETED
+  SUSPENDED
+}
+
+enum UserStatus {
+  ACTIVE
+  DELETED
+  SUSPENDED
+}
+
+enum SalaryType {
+  hourly
+  daily
+  weekly
+  monthly
+  yearly
+}
+
+enum PlanType {
+  subscription
+  payPerJob
+}
+
+enum Status {
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum Interval {
+  month
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  CANCELED
+  REFUNDED
+}
+
+enum UserRole {
+  ADMIN
+  JOB_SEEKER
+  EMPLOYEE
+  SUPER_ADMIN
+}
+
+model Profile {
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  firstName     String
+  lastName      String?
+  phoneNumber   String?
+  profileId     String  @unique
+  email         String?
+  countryRegion String
+  address       String
+  city          String
+  state         String
+  zipCode       String?
+  JobTitle      String
+
+  jobDescription String?
+  jobExperience  Json?
+  education      Json?
+  certifications Json?
+  socialMedia    SocialMedia?
+  skills         String[]
+  languages      String[]
+  aboutMe        String?
+
+  User           User?            @relation(fields: [userId], references: [id])
+  userId         String?          @unique @db.ObjectId
+  JobApplication JobApplication[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@map("profiles")
+}
+
+// Embedded document for job experience
+type JobExperience {
+  job_title       String
+  company_name    String
+  start_date      DateTime?
+  end_date        DateTime?
+  job_description String?
+  // achievements    FileAttachment[]
+}
+
+// Embedded document for education
+type Education {
+  degree                String
+  institution_name      String?
+  major                 String?
+  graduation_start_date DateTime?
+  graduation_end_date   DateTime?
+  // graduation_certificates FileAttachment[]
+}
+
+// Embedded document for certifications
+type Certification {
+  certification_name   String?
+  issuing_organization String?
+  issue_date           DateTime?
+  expiry_date          DateTime?
+  credential_id        String?
+  credential_url       String?
+}
+
+// Embedded document for social media
+type SocialMedia {
+  linkedin_profile_url   String?
+  personal_website_url   String?
+  other_social_media     String?
+  other_social_media_url String?
+  github_url             String?
+  twitter_url            String?
+  portfolio_url          String?
+}
+
+// Embedded document for file attachments
+type FileAttachment {
+  filename         String
+  file_path        String
+  file_size        Int
+  upload_timestamp DateTime
+  content_type     String
+  description      String?
+}
+
+enum ProfileStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+model JobApplication {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  jobId       String            @db.ObjectId
+  jobSeekerId String            @db.ObjectId
+  profileId   String            @db.ObjectId
+  status      ApplicationStatus @default(PENDING)
+  appliedAt   DateTime          @default(now())
+  profile     Profile?          @relation(fields: [profileId], references: [id])
+  job         JobPost           @relation(fields: [jobId], references: [id])
+  jobSeeker   User              @relation(fields: [jobSeekerId], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  InterviewScheduler InterviewScheduler[]
+
+  @@map("job_applications")
+}
+
+model SavedJob {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  jobId     String   @db.ObjectId
+  userId    String   @db.ObjectId
+  savedAt   DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  job  JobPost @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, userId])
+  @@index([userId])
+  @@index([jobId])
+  @@map("saved_jobs")
+}
+
+model InterviewScheduler {
+  id                String             @id @default(auto()) @map("_id") @db.ObjectId
+  jobApplicationId  String             @db.ObjectId
+  jobApplication    JobApplication     @relation(fields: [jobApplicationId], references: [id])
+  interviewTitle    String
+  interviewDate     DateTime
+  interviewTime     String
+  interviewPlatform InterviewPlatform? @default(GOOGLE_MEET)
+  interviewLink     String?            @default("")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@map("interview_schedulers")
+}
+
+enum InterviewPlatform {
+  GOOGLE_MEET
+  ZOOM
+  SKYPE
+  OTHER
+}
+
+enum ApplicationStatus {
+  PENDING
+  REJECTED
+  SELECTED
+}
+
+model ChatRoom {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  roomId       String       @unique
+  name         String?
+  description  String?
+  roomType     ChatRoomType @default(JOB_APPLICATION)
+  jobPostId    String?      @db.ObjectId
+  createdBy    String       @db.ObjectId
+  isActive     Boolean      @default(true)
+  lastActivity DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Relations
+  jobPost      JobPost?              @relation(fields: [jobPostId], references: [id])
+  creator      User                  @relation("CreatedRooms", fields: [createdBy], references: [id])
+  participants ChatRoomParticipant[]
+  messages     Chat[]
+
+  @@index([jobPostId])
+  @@index([roomType])
+  @@index([createdBy])
+  @@map("chat_rooms")
+}
+
+model ChatRoomParticipant {
+  id         String          @id @default(auto()) @map("_id") @db.ObjectId
+  roomId     String          @db.ObjectId
+  userId     String          @db.ObjectId
+  role       ParticipantRole @default(MEMBER)
+  joinedAt   DateTime        @default(now())
+  lastSeenAt DateTime?
+  isActive   Boolean         @default(true)
+
+  // Relations
+  room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id])
+
+  @@unique([roomId, userId])
+  @@index([userId])
+  @@index([roomId])
+  @@map("chat_room_participants")
+}
+
+model Chat {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  roomId      String          @db.ObjectId // Reference to ChatRoom
+  senderId    String          @db.ObjectId
+  message     String
+  messageType ChatMessageType @default(TEXT)
+  isRead      Boolean         @default(false)
+  isEdited    Boolean         @default(false)
+  editedAt    DateTime?
+  replyToId   String?         @db.ObjectId // For threaded conversations
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relations
+  room    ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender  User     @relation("SentMessages", fields: [senderId], references: [id])
+  replyTo Chat?    @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies Chat[]   @relation("MessageReplies")
+
+  @@index([roomId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("chats")
+}
+
+enum ChatRoomType {
+  JOB_APPLICATION // Company owner ↔ Job seeker for specific job
+  INTERVIEW_CHAT // For scheduled interviews  
+  FOLLOW_UP // Post-interview discussions
+}
+
+enum ParticipantRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum ChatMessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+  NOTIFICATION
+}
+
+// Newsletter subscribers for marketing emails
+model NewsletterSubscriber {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("newsletter_subscribers")
+}
