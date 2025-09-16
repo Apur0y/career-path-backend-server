@@ -1,6 +1,4 @@
-Sure! Here’s a polished **GitHub README** based on your description. I’ve made it professional, structured, and easy to read.
 
----
 
 # Career Path | Job Searching Platform
 
