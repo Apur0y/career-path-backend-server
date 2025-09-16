@@ -4,7 +4,6 @@
 
 **A team project led by Apu Roy (July 2025)**
 
-[Live Site](#) | [Client Repository](#) | [Server Repository](#)
 
 ---
 
