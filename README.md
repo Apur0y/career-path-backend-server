@@ -2,9 +2,6 @@
 
 # Career Path | Job Searching Platform
 
-**A team project led by Apu Roy (July 2025)**
-
-
 ---
 
 ## **Overview**
@@ -33,9 +30,3 @@ Career Path is a modern job searching platform designed to connect job seekers a
 * **State Management:** Redux Toolkit + RTK Query
 * **Payments:** Stripe
 * **Utilities:** Jspdf, Zod, Postman
-
----
-
-
-
-Do you want me to do that?
