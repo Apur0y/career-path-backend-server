@@ -1,32 +1,45 @@
+# Career Path | Job Searching Platform (Backend)
 
-
-# Career Path | Job Searching Platform
-
----
-
-## **Overview**
-
-Career Path is a modern job searching platform designed to connect job seekers and employers seamlessly. The platform provides robust dashboards for both admins and employees, subscription-based payment functionality, and complete job & user management.
+> ⚠️ **Disclaimer:** This is a **company internal project**. Only a limited portion of the code is shared here for reference. The live API may show restricted/partial behavior since confidential endpoints and credentials are not available in this public build. Contact me directly for more details.
 
 ---
 
-## **Features**
+## Overview
 
-* **Job Search:** Effortlessly browse and search for available jobs.
-* **Subscription Payments:** Integrated Stripe payment system for premium features.
-* **Dashboard:**
+Career Path is a job searching platform connecting job seekers and employers, with dashboards for Admin, Employer, and Job Seeker roles, AI-powered resume building, AI job matching, and subscription-based payments.
 
-  * **Admin Dashboard:** Full control over jobs, users, and platform settings.
-  * **Employee Dashboard:** Manage profile, view applied jobs, and subscriptions.
-* **PDF Generation:** Generate reports using `Jspdf`.
-* **Validation & API Testing:** Data validation with `Zod` and API testing via `Postman`.
+🔗 Live Preview: https://github.com/Apur0y/career-path-frontend
 
----
+## Features
 
-## **Tech Stack**
+- **Job Search & AI Job Matching** — advanced filtering and AI-based job suggestions
+- **AI Resume Builder** for job seekers
+- **Subscription Payments** via Stripe
+- **Dashboards:** Admin, Employer, and Job Seeker
+- **PDF Generation** using Jspdf
+- **Validation & API Testing** with Zod and Postman
 
-* **Frontend:** Next.js, TypeScript, Tailwind CSS
-* **Backend:** Express.js, Mongoose (MongoDB)
-* **State Management:** Redux Toolkit + RTK Query
-* **Payments:** Stripe
-* **Utilities:** Jspdf, Zod, Postman
+## Tech Stack
+
+- **Frontend:** Next.js, TypeScript, Tailwind CSS
+- **Backend:** Express.js, Mongoose (MongoDB)
+- **State Management:** Redux Toolkit + RTK Query
+- **Payments:** Stripe
+- **Utilities:** Jspdf, Zod, Postman
+
+## Getting Started
+
+```bash
+git clone https://github.com/Apur0y/career-path-backend-server.git
+cd career-path-backend-server
+npm install
+npm run dev
+```
+
+> Requires environment variables — see `.env.example`. Some features depend on confidential credentials not included here.
+
+## Contact
+
+For more details about the full project, reach out directly.
+
+- GitHub: [@Apur0y](https://github.com/Apur0y)
