@@ -17,6 +17,8 @@ router.post(
     { name: "graduationCertificateFiles", maxCount: 10 },
   ]),
   (req: Request, res: Response, next: NextFunction) => {
+
+   
     try {
       if (req.body?.data) {
         req.body = JSON.parse(req.body.data);
@@ -28,6 +30,8 @@ router.post(
   },
   ProfileController.createProfile
 );
+
+
 router.get("/resume/:userId", auth(UserRole.JOB_SEEKER, UserRole.ADMIN, UserRole.SUPER_ADMIN), ProfileController.resumeGenerate)
 router.patch("/resume/:userId", auth(UserRole.JOB_SEEKER), ProfileController.updatedProfile)
 
