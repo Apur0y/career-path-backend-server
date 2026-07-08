@@ -28,6 +28,8 @@ const createProfile = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
+
 const updatedProfile = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
 
