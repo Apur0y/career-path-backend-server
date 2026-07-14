@@ -6,6 +6,7 @@ import { JobPostValidation } from "./job.validation";
 import validateRequest from "../../middlewares/validateRequest";
 import { NextFunction, Request, Response, Router } from "express";
 import ApiError from "../../errors/ApiError";
+import prisma from "../../utils/prisma";
 
 const router = Router();
 
@@ -66,6 +67,16 @@ router.patch(
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   JobController.suspendJobPost
 );
+router.patch("/fix-dates", async (req, res) => {
+  await prisma.jobPost.updateMany({
+    data: {
+      createdAt: new Date("2026-07-12T07:59:43.915Z"),
+      updatedAt: new Date("2026-07-12T07:59:43.915Z"),
+    },
+  });
+
+  res.json({ message: "Updated" });
+});
 
 router.patch(
   "/:jobPostId",
