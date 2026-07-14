@@ -32,6 +32,7 @@ const getMyJobPosts = catchAsync(async (req, res) => {
 });
 
 const getAllJobPosts = catchAsync(async (req, res) => {
+  console.log("vai is here")
   const result = await JobService.getAllJobPostsFromDB(req.query);
 
   sendResponse(res, {
@@ -40,6 +41,7 @@ const getAllJobPosts = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 
 const getActiveJobPosts = catchAsync(async (req, res) => {
   const result = await JobService.getActiveJobPostsFromDB(req.query);

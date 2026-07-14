@@ -208,6 +208,7 @@ const getAllJobPostsFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getActiveJobPostsFromDB = async (query: Record<string, unknown>) => {
+  
   // Special handling for salaryRange range semantics
   const q = { ...(query as Record<string, any>) };
   const salaryRangeQuery: string | undefined =
@@ -251,6 +252,7 @@ const getActiveJobPostsFromDB = async (query: Record<string, unknown>) => {
     if (!searchTerm) return jobs;
 
     const searchLower = searchTerm.toLowerCase();
+       const searchNumericRange = parseSalaryRange(searchTerm);
 
     return jobs.filter((job) => {
       // Search in job title
@@ -261,6 +263,10 @@ const getActiveJobPostsFromDB = async (query: Record<string, unknown>) => {
 
       // Search in experience
       if (job.experience?.toLowerCase().includes(searchLower)) return true;
+      if (searchNumericRange) {
+        const jobExpRange = parseSalaryRange(job.experience || "");
+        if (rangesOverlap(jobExpRange, searchNumericRange)) return true;
+      }
 
       // Search in company name
       if (job.company?.companyName?.toLowerCase().includes(searchLower))
@@ -391,7 +397,7 @@ const getActiveJobPostsFromDB = async (query: Record<string, unknown>) => {
       data: sliced,
     };
   }
-
+ 
   // Default path without salaryRange range logic
   const jobPostQuery = new QueryBuilder(prisma.jobPost, query)
     .search([
@@ -443,17 +449,17 @@ const getActiveJobPostsFromDB = async (query: Record<string, unknown>) => {
         },
       },
     });
-
+ 
   const [result, meta] = await Promise.all([
     jobPostQuery.execute(),
     jobPostQuery.countTotal(),
   ]);
 
+  
   // Apply enhanced search if searchTerm is provided
   let finalResult = result;
   if (searchTerm) {
     finalResult = enhancedSearch(result, searchTerm);
-
     // Update meta information for search results
     if (meta) {
       meta.total = finalResult.length;
