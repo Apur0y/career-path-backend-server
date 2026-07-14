@@ -19,6 +19,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "https://career-path-employer-dashboard.vercel.app",
+      
       "https://career-path-pearl.vercel.app",
     ],
     credentials: true,
